@@ -1,6 +1,7 @@
 import { Controller,Post,Body,Get, Param } from '@nestjs/common';
 import {ServicesService} from './services.service'
 import {createServiceRequestDto} from './Dto/createServiceRequestDto'
+import {updateServiceRequestDto} from './Dto/updateServiceRequestDto'
 import {listServiceRequestDto} from './Dto/listServiceRequestDto'
 import { ObjectId } from 'mongoose';
 
@@ -14,7 +15,11 @@ export class ServicesController {
         const result = await this.ServicesService.create(createServiceRequest);
         return result  
       }
-
+      @Post('acceptServiceRequest/:id')
+      async acceptServiceRequest(@Param('id') id: ObjectId ,@Body() updateServiceRequestDto: updateServiceRequestDto): Promise<Object> {
+          const result = await this.ServicesService.update(id,updateServiceRequestDto);
+          return result  
+        }
       @Get('getServiceRequest/:id')
       async listSingleServiceRequest(@Param('id') id: ObjectId): Promise<Object> {
           const result = await this.ServicesService.listOne(id);
