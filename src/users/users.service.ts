@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument, Usertype } from '../../schemas/user.schema';
@@ -35,6 +35,12 @@ export class UsersService {
   async listAllAvailableMaids(
     filters: ListAllAvailableMaidsDto = {},
   ): Promise<ResponseObject> {
+    if (filters.from || filters.to) {
+      throw new BadRequestException(
+        'from and to query parameters are not allowed when listing available maids',
+      );
+    }
+
     try {
       const query: Record<string, unknown> = { userType: Usertype.Maid };
       if (filters.gender) {
