@@ -1,7 +1,7 @@
-import { Controller,Get, Post,Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
-import {CreateUserDto} from './Dto/createUserDto'
-import { User } from '../../schemas/user.schema';
+import { CreateUserDto } from './Dto/createUserDto';
+import { ListAllAvailableMaidsDto } from './Dto/listAllAvailableMaidsDto';
 
 
 @Controller('users')
@@ -11,6 +11,13 @@ export class UsersController {
    async getUsers(): Promise<Object> {
       let result =  await this.usersService.findAll();
       return result;
+    }
+
+    @Get('listAllAvailableMaids')
+    async listAllAvailableMaids(
+      @Query() query: ListAllAvailableMaidsDto,
+    ): Promise<Object> {
+      return this.usersService.listAllAvailableMaids(query);
     }
     @Post()
     async createUser(@Body() createUserDto: CreateUserDto): Promise<Object> {

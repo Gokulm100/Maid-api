@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../../schemas/user.schema';
+import { User, UserDocument, Usertype } from '../../schemas/user.schema';
+import { ListAllAvailableMaidsDto } from './Dto/listAllAvailableMaidsDto';
 import {CreateUserDto} from './Dto/createUserDto'
 import { ResponseObject } from 'response.builder';
 const bcrypt = require('bcrypt');
@@ -28,6 +29,38 @@ export class UsersService {
 
       }
       return response;
+    }
+  }
+
+  async listAllAvailableMaids(
+    filters: ListAllAvailableMaidsDto = {},
+  ): Promise<ResponseObject> {
+    if (filters.from || filters.to) {
+      throw new BadRequestException(
+        'from and to query parameters are not allowed when listing available maids',
+      );
+    }
+
+    try {
+      const query: Record<string, unknown> = { userType: Usertype.Maid };
+      if (filters.gender) {
+        query.gender = filters.gender;
+      }
+      if (filters.name) {
+        query.name = { $regex: filters.name, $options: 'i' };
+      }
+
+      const maids = await this.userModel.find(query).select('-password').exec();
+      return {
+        message: 'Available maids fetched successfully!',
+        data: maids,
+      };
+    } catch (error) {
+      return {
+        message: 'Failed to fetch available maids!',
+        data: [],
+        error: error.message,
+      };
     }
   }
 
